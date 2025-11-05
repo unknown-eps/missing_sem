@@ -27,6 +27,7 @@ This document contains a collection of useful shell commands along with their de
     - [`disown`](#disown)
   - [Text Processing and I/O](#text-processing-and-io)
     - [`tee`](#tee)
+    - [`xargs`](#xargs)
   - [Grouping and Quoting](#grouping-and-quoting)
     - [Parentheses `()`](#parentheses-)
     - [Curly Braces `{}`](#curly-braces-)
@@ -442,6 +443,104 @@ drwxrwxr-x 2 username username 4096 Nov  4 14:20 dir2
 - Saving pipeline output for later analysis
 - Creating backups of command results
 - Debugging by capturing intermediate pipeline steps
+
+### `xargs`
+**Description:** Build and execute command lines from standard input. Takes input from stdin and converts it into arguments for other commands.
+
+**Usage:**
+```bash
+command | xargs [options] [command]
+```
+
+**Examples:**
+```bash
+# Find and delete files
+find . -name "*.tmp" | xargs rm
+
+# Convert multi-line input to single line
+echo -e "one\ntwo\nthree" | xargs
+# Output: one two three
+
+# Run command for each input item
+echo "file1.txt file2.txt file3.txt" | xargs -n 1 ls -l
+
+# Use with specific command
+ls *.txt | xargs wc -l
+
+# Handle filenames with spaces
+find . -name "*.txt" -print0 | xargs -0 grep "pattern"
+
+# Parallel execution
+echo {1..10} | xargs -n 1 -P 4 sleep
+```
+
+**Example Output:**
+```bash
+$ echo "file1.txt file2.txt file3.txt" | xargs ls -l
+-rw-rw-r-- 1 user user 1024 Nov  4 14:30 file1.txt
+-rw-rw-r-- 1 user user 2048 Nov  4 14:30 file2.txt
+-rw-rw-r-- 1 user user  512 Nov  4 14:30 file3.txt
+
+$ find /tmp -name "*.log" | xargs -I {} cp {} /backup/
+# Copies all .log files to /backup/
+```
+
+**Common Options:**
+- `-n NUM` - Use at most NUM arguments per command line
+- `-I REPLACE` - Replace occurrences of REPLACE in command with input
+- `-0` - Input items are separated by null character (use with `find -print0`)
+- `-P NUM` - Run up to NUM processes in parallel
+- `-t` - Print the command before executing it
+- `-r` - Don't run command if input is empty
+- `-d DELIM` - Use DELIM as input delimiter instead of whitespace
+- `-s SIZE` - Limit command line length to SIZE characters
+
+**Advanced Examples:**
+```bash
+# Interactive confirmation
+echo "file1 file2 file3" | xargs -p rm
+# Prompts: rm file1 file2 file3?
+
+# Custom delimiter
+echo "a,b,c,d" | xargs -d, -n 1 echo "Item:"
+# Output: Item: a, Item: b, Item: c, Item: d
+
+# Replace string usage
+find . -name "*.bak" | xargs -I {} mv {} {}.old
+
+# Parallel processing
+seq 1 10 | xargs -n 1 -P 4 bash -c 'echo "Processing $1"; sleep 2' _
+
+# Handle empty input safely
+find /nonexistent -name "*.txt" | xargs -r echo "Found files:"
+# No output if no files found (due to -r flag)
+
+# Complex command building
+ps aux | grep firefox | awk '{print $2}' | xargs -r kill
+```
+
+**Use Cases:**
+- Converting input streams into command arguments
+- Batch processing of files found by `find`
+- Parallel execution of commands
+- Building complex command lines dynamically
+- Handling large numbers of files that exceed command line limits
+- Processing output from other commands as arguments
+
+**Common Pitfalls and Solutions:**
+```bash
+# Problem: Filenames with spaces
+find . -name "*.txt" | xargs rm  # WRONG - breaks on spaces
+
+# Solution: Use null separator
+find . -name "*.txt" -print0 | xargs -0 rm  # CORRECT
+
+# Problem: Empty input causing errors
+grep pattern *.txt | cut -d: -f1 | xargs rm  # WRONG - fails if no matches
+
+# Solution: Use -r flag
+grep pattern *.txt | cut -d: -f1 | xargs -r rm  # CORRECT
+```
 
 ---
 
