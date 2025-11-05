@@ -11,6 +11,7 @@ This document contains a collection of useful shell commands along with their de
     - [`ls`](#ls)
     - [`pwd`](#pwd)
     - [`mkdir`](#mkdir)
+    - [`find`](#find)
   - [System Information](#system-information)
     - [`whoami`](#whoami)
     - [`uname`](#uname)
@@ -116,6 +117,71 @@ mkdir [options] directory_name
 ```bash
 mkdir new_folder
 mkdir -p path/to/nested/folder
+```
+
+### `find`
+**Description:** Search for files and directories in a directory hierarchy
+
+**Usage:**
+```bash
+find [path...] [expression]
+```
+
+**Examples:**
+```bash
+# Find all files in current directory
+find .
+
+# Find files by name
+find /home -name "*.txt"
+
+# Find directories only
+find /var -type d -name "log*"
+
+# Find files by size
+find . -size +100M
+
+# Find and execute command
+find . -name "*.tmp" -delete
+```
+
+**Example Output:**
+```
+./commands.md
+./run.sh
+./shellbang.py
+./test_pid.sh
+```
+
+**Common Options:**
+- `-name pattern` - Find by filename pattern
+- `-type f` - Files only
+- `-type d` - Directories only
+- `-size +/-N` - Find by size (+ larger, - smaller)
+- `-mtime N` - Modified N days ago
+- `-exec command {} \;` - Execute command on found files
+- `-delete` - Delete found files
+- `-maxdepth N` - Limit search depth
+
+**Advanced Examples:**
+```bash
+# Find files modified in last 7 days
+find /home -type f -mtime -7
+
+# Find large files (>100MB)
+find / -type f -size +100M 2>/dev/null
+
+# Find and copy files
+find . -name "*.log" -exec cp {} /backup/ \;
+
+# Find empty directories
+find /tmp -type d -empty
+
+# Case-insensitive search
+find . -iname "*.PDF"
+
+# Find files with specific permissions
+find . -type f -perm 644
 ```
 
 ---
