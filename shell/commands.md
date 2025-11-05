@@ -26,6 +26,17 @@ This document contains a collection of useful shell commands along with their de
     - [`disown`](#disown)
   - [Text Processing and I/O](#text-processing-and-io)
     - [`tee`](#tee)
+  - [Shell Variables and Special Parameters](#shell-variables-and-special-parameters)
+    - [`$$` (Process ID)](#-process-id)
+    - [`$?` (Exit Code)](#-exit-code)
+    - [`$#` (Number of Arguments)](#-number-of-arguments)
+    - [`$0` (Script Name)](#0-script-name)
+    - [`$1, $2, $3...` (Positional Parameters)](#1-2-3-positional-parameters)
+    - [`$*` (All Arguments)](#-all-arguments)
+    - [`$@` (All Arguments as Array)](#-all-arguments-as-array)
+    - [`$!` (Background Process PID)](#-background-process-pid)
+    - [`$_` (Last Argument)](#_-last-argument)
+    - [`$$` vs `$BASHPID`](#-vs-bashpid)
   - [Tips for Adding New Commands](#tips-for-adding-new-commands)
 
 ---
@@ -356,6 +367,157 @@ drwxrwxr-x 2 username username 4096 Nov  4 14:20 dir2
 - Saving pipeline output for later analysis
 - Creating backups of command results
 - Debugging by capturing intermediate pipeline steps
+
+---
+
+## Shell Variables and Special Parameters
+
+### `$$` (Process ID)
+**Description:** Returns the process ID (PID) of the current shell
+
+**Usage:**
+```bash
+echo $$
+```
+
+**Example Output:**
+```
+1234
+```
+
+### `$?` (Exit Code)
+**Description:** Returns the exit status of the last executed command (0 for success, non-zero for error)
+
+**Usage:**
+```bash
+ls /existing/directory
+echo $?
+ls /nonexistent/directory
+echo $?
+```
+
+**Example Output:**
+```
+0
+ls: cannot access '/nonexistent/directory': No such file or directory
+2
+```
+
+### `$#` (Number of Arguments)
+**Description:** Returns the number of positional parameters (command-line arguments) passed to a script
+
+**Usage:**
+```bash
+# In a script:
+echo "Number of arguments: $#"
+```
+
+**Example Output:**
+```bash
+# Running: ./script.sh arg1 arg2 arg3
+Number of arguments: 3
+```
+
+### `$0` (Script Name)
+**Description:** Returns the name of the script or shell
+
+**Usage:**
+```bash
+echo $0
+```
+
+**Example Output:**
+```
+./myscript.sh
+# or
+bash
+```
+
+### `$1, $2, $3...` (Positional Parameters)
+**Description:** Returns the value of positional parameters (command-line arguments)
+
+**Usage:**
+```bash
+# In a script:
+echo "First argument: $1"
+echo "Second argument: $2"
+```
+
+**Example Output:**
+```bash
+# Running: ./script.sh hello world
+First argument: hello
+Second argument: world
+```
+
+### `$*` (All Arguments)
+**Description:** Returns all positional parameters as a single string
+
+**Usage:**
+```bash
+echo "All arguments: $*"
+```
+
+**Example Output:**
+```bash
+# Running: ./script.sh arg1 arg2 arg3
+All arguments: arg1 arg2 arg3
+```
+
+### `$@` (All Arguments as Array)
+**Description:** Returns all positional parameters as separate quoted strings
+
+**Usage:**
+```bash
+for arg in "$@"; do
+    echo "Argument: $arg"
+done
+```
+
+**Example Output:**
+```bash
+# Running: ./script.sh "hello world" "foo bar"
+Argument: hello world
+Argument: foo bar
+```
+
+### `$!` (Background Process PID)
+**Description:** Returns the process ID of the last background command
+
+**Usage:**
+```bash
+sleep 100 &
+echo $!
+```
+
+**Example Output:**
+```
+5678
+```
+
+### `$_` (Last Argument)
+**Description:** Returns the last argument of the previous command
+
+**Usage:**
+```bash
+ls /home/user/documents
+echo $_
+```
+
+**Example Output:**
+```
+/home/user/documents
+```
+
+### `$$` vs `$BASHPID`
+**Description:** `$$` gives the main shell PID, `$BASHPID` gives the current subshell PID
+
+**Usage:**
+```bash
+echo "Main shell: $$"
+echo "Current shell: $BASHPID"
+(echo "Subshell: $BASHPID")
+```
 
 ---
 
